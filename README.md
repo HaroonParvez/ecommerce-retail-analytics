@@ -218,7 +218,7 @@ The analysis was presented through three interactive Power BI dashboards.
 
 Provides an overview of overall sales performance, including revenue, units sold, orders, customers, average order value, monthly revenue and category performance.
 
-![Dashboard 1 - Retail Sales & Inventory Analysis](images/dashboard_1.png)
+![Dashboard 1 - Retail Sales & Inventory Analysis](images/dashboard_1.png?v=2)
 
 ---
 
@@ -226,7 +226,7 @@ Provides an overview of overall sales performance, including revenue, units sold
 
 Examines product-level and category-level demand, including monthly units, average unit prices, product counts and yearly demand comparisons.
 
-![Dashboard 2 - Product & Demand Analysis](images/dashboard_2.png)
+![Dashboard 2 - Product & Demand Analysis](images/dashboard_2.png?v=2)
 
 ---
 
@@ -234,7 +234,7 @@ Examines product-level and category-level demand, including monthly units, avera
 
 Focuses on demand quality and potential planning difficulty, including demand volatility, product-level risk detail, customer revenue concentration and geographic sales distribution.
 
-![Dashboard 3 - Product Risk & Demand Quality](images/dashboard_3.png)
+![Dashboard 3 - Product Risk & Demand Quality](images/dashboard_3.png?v=2)
 
 
 ---
