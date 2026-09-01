@@ -87,7 +87,7 @@ Business Recommendations
 ```
 
 ## Repository Structure
-
+```text
 ├── main.ipynb
 ├── retail_analysis.sql
 ├── retail_sales_inventory_analysis.pbix
@@ -96,7 +96,7 @@ Business Recommendations
 │   ├── dashboard_2.png
 │   └── dashboard_3.png
 └── README.md
-
+```
 
 > **Note:** The raw and cleaned datasets are not included in the repository due to file size.
 
