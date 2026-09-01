@@ -88,9 +88,9 @@ Business Recommendations
 
 ## Repository Structure
 ```text
-├── main.ipynb
+├── data_cleaning.ipynb
 ├── retail_analysis.sql
-├── retail_sales_inventory_analysis.pbix
+├── retail_dashboards.pbix
 ├── images/
 │   ├── dashboard_1.png
 │   ├── dashboard_2.png
