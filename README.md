@@ -214,7 +214,7 @@ This was used as an indicator of products that may be more difficult to manage u
 
 The analysis was presented through three interactive Power BI dashboards.
 
-## Dashboard 1 — Retail Sales & Inventory Analysis
+## Dashboard 1 — Sales Performance
 
 Provides an overview of overall sales performance, including revenue, units sold, orders, customers, average order value, monthly revenue and category performance.
 
@@ -230,7 +230,7 @@ Examines product-level and category-level demand, including monthly units, avera
 
 ---
 
-## Dashboard 3 — Product Risk & Demand Quality
+## Dashboard 3 — Demand Risk & Product Volatility
 
 Focuses on demand quality and potential planning difficulty, including demand volatility, product-level risk detail, customer revenue concentration and geographic sales distribution.
 
