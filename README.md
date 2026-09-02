@@ -1,4 +1,4 @@
-# Retail Revenue Risk & Demand Planning Analysis
+# Retail Sales, Demand & Revenue Risk Analysis
 
 An end-to-end data analytics project using the UCI Online Retail II dataset to investigate where a retail business's revenue is most exposed to risk (unpredictable demand, order cancellations, and customer concentration) and what that means for inventory and demand planning.
 
