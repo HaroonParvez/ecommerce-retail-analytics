@@ -95,10 +95,11 @@ Interactive dashboards
       │
       ▼
 Key Findings → Business Recommendations
+```
 
 ## Repository Structure
 
-```text
+``` text
 ├── data_cleaning.ipynb
 ├── retail_analysis.sql
 ├── retail_dashboards.pbix
