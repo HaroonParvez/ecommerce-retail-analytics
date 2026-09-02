@@ -1,6 +1,6 @@
 # Retail Sales, Demand & Revenue Risk Analysis
 
-An end-to-end data analytics project using the UCI Online Retail II dataset to investigate where a retail business's revenue is most exposed to risk (unpredictable demand, order cancellations, and customer concentration) and what that means for inventory and demand planning.
+An end-to-end data analytics project using the UCI Online Retail II dataset to investigate where a retail business's revenue is most exposed to risk, focusing on demand patterns, product performance, customer concentration and cancellation rates.
 
 The project uses Python for data cleaning and preparation, MySQL/SQL for analytical analysis, and Power BI for interactive reporting and visualisation. The analysis concludes with evidence-based business recommendations tied directly to the findings.
 
@@ -15,6 +15,7 @@ The project uses Python for data cleaning and preparation, MySQL/SQL for analyti
 - [Repository Structure](#repository-structure)
 - [Data Cleaning & Preparation](#data-cleaning--preparation)
 - [Product Categorisation](#product-categorisation)
+- [Methodology Note: Cancellation Rate](#methodology-note-cancellation-rate)
 - [SQL Analysis](#sql-analysis)
 - [Key Findings](#key-findings)
 - [Business Recommendations](#business-recommendations)
@@ -22,16 +23,19 @@ The project uses Python for data cleaning and preparation, MySQL/SQL for analyti
 - [Limitations](#limitations)
 - [Author](#author)
 
+---
 
 ## Business Question
 
 **Where is this business's revenue most exposed to risk, and which product categories, products, and customer segments should be prioritised to manage that risk?**
 
-This is investigated from three angles, each corresponding to one dashboard page:
+The analysis examines this from three analytical perspectives:
 
-1. **Demand risk**: which categories and products combine high demand with high volatility, making them hardest to forecast and stock accurately (Page 2 & 3)
-2. **Cancellation risk**: which categories see the largest share of orders cancelled, representing lost or reversed revenue (Python analysis)
-3. **Concentration risk**: how dependent the business is on a small number of customers or products, and what that means for revenue stability (Page 3)
+1. **Demand risk:** which categories and products combine high demand with high demand variability, making demand more difficult to plan around.
+2. **Concentration risk:** how dependent revenue is on a relatively small number of customers or products.
+3. **Cancellation rate:** how cancellation rates vary across product categories, calculated separately in Python using the full transaction dataset.
+
+The first two perspectives form the main SQL and Power BI analysis, while cancellation rate is treated as a supplementary Python analysis because cancelled transactions are excluded from the cleaned dataset used downstream.
 
 ---
 
@@ -39,7 +43,7 @@ This is investigated from three angles, each corresponding to one dashboard page
 
 **UCI Online Retail II**
 
-The dataset contains approximately 1 million transaction line items from a UK-based online retailer covering **December 2009 to December 2011**.
+The dataset contains **1,067,371 transaction line items** from a UK-based online retailer covering **December 2009 to December 2011**.
 
 Each row represents a product line within a customer invoice.
 
@@ -63,7 +67,7 @@ The raw dataset is not included in this repository due to file size. It can be o
 | Tool | Purpose |
 |---|---|
 | **Python (pandas)** | Data cleaning, quality checks, product categorisation, cancellation-rate analysis |
-| **MySQL / SQL** | Demand benchmarking, product risk identification, category and customer analysis |
+| **MySQL / SQL** | Demand analysis, product risk identification, category analysis and customer revenue analysis |
 | **Power BI / DAX** | Interactive dashboards, KPIs and visual analysis |
 
 ---
@@ -77,16 +81,18 @@ Raw Excel Data
 Python
 Data cleaning & preparation
 Product categorisation
-Cancellation-rate analysis (full dataset)
+Cancellation-rate analysis on full dataset
       │
       ▼
-Cleaned Sales Dataset (completed sales only)
+Cleaned Sales Dataset
+Non-cancelled, positive-quantity sales
       │
       ▼
 MySQL / SQL
 Demand analysis
 Product risk analysis
-Category & customer analysis
+Category analysis
+Customer revenue analysis
       │
       ▼
 Power BI
@@ -94,10 +100,11 @@ Interactive dashboards
       │
       ▼
 Key Findings → Business Recommendations
+
 ```
 
 ## Repository Structure
-```text
+
 ├── data_cleaning.ipynb
 ├── retail_analysis.sql
 ├── retail_dashboards.pbix
@@ -106,44 +113,38 @@ Key Findings → Business Recommendations
 │   ├── dashboard_2.png
 │   └── dashboard_3.png
 └── README.md
-```
 
-> **Note:** The raw and cleaned datasets are not included in the repository due to file size.
-
----
-
-## Data Cleaning & Preparation
-
-The raw dataset contained several data-quality issues. Each was investigated with evidence before deciding how to handle it, rather than resolved by default assumption:
-
-| Issue | Finding | Decision |
-|---|---|---|
-| **Missing Customer ID** | ~23% of records had no customer identifier | Retained, since the main analysis is category/revenue-level, not customer-level. Flagged as a limitation for any future customer-level work |
-| **Cancelled orders** | Identified using C-prefixed invoice numbers | Separated from normal sales and excluded from the cleaned sales dataset used in SQL/Power BI |
-| **Negative quantities outside cancellations** | 100% of these rows had no Customer ID, with descriptions such as "damages", "missing", "thrown away", "unsaleable, destroyed" | Identified as internal stock write-offs, not customer transactions. Removed |
-| **Zero-price records** | 95% had no Customer ID and the same adjustment-style descriptions; the remaining 5% were tied to genuine customers | Adjustment records removed; genuine customer records (likely free items/promotional add-ons) retained |
-| **Duplicate line items** | The proportion of duplicated lines within an affected invoice was typically low (median 10%), consistent with genuine repeated item entries rather than a batch export error | Retained |
-| **Non-product transactions** | Postage, manual adjustments, and other administrative entries identified by description | Removed |
-
-The full cleaning process and reasoning are documented in `data_cleaning.ipynb`.
+> **Note:** The full cleaning process and reasoning are documented in `data_cleaning.ipynb`.
 
 ---
 
 ## Product Categorisation
 
-Products were grouped into 11 categories using a keyword-based classification approach:
+Products were grouped into 11 business-relevant categories using a rule-based keyword classification approach:
 
-Kitchen & Baking · Home Decor & Storage · Bags & Totes · Lighting & Candles · Novelty & Gifts · Christmas & Seasonal · Gift Wrap & Party · Garden & Nature · Home Comfort & Textiles · Craft & Art · Other
+- Kitchen & Baking
+- Home Decor & Storage
+- Bags & Totes
+- Lighting & Candles
+- Novelty & Gifts
+- Christmas & Seasonal
+- Gift Wrap & Party
+- Garden & Nature
+- Home Comfort & Textiles
+- Craft & Art
+- Other
 
-The approach was built around the highest-revenue product descriptions and covers approximately **95% of total revenue**. The remaining long-tail products were kept in an **Other** category rather than force-fit into an unsuitable one.
+Keywords were developed by reviewing high-revenue product descriptions and common product-description patterns. Products that could not be confidently assigned to one of the defined categories were retained in an **Other** category.
 
-*Limitation: keyword-based classification is prone to occasional edge-case misclassification where a keyword is a substring of an unrelated word. This is a known and accepted trade-off given the 95% revenue coverage achieved.*
+The final categorisation accounts for approximately **93.6% of revenue**, with Other representing **6.4%**.
 
----
+* **Limitation:** Keyword-based classification can occasionally misclassify products where a keyword appears as part of an unrelated description. The Other category was retained rather than forcing uncertain products into an unsuitable category.
 
-## Methodology Note: Cancellation Rate
-
-Cancellation rate is reported from the **Python analysis**, not from SQL or Power BI. This is a deliberate design decision, not an oversight: the cleaned dataset used downstream in SQL and Power BI intentionally *excludes* cancelled orders, since it's meant to represent completed sales only. Computing a cancellation rate from that dataset would always return 0%, since the denominator no longer contains any cancellations. The rate was instead calculated in Python against the full, unfiltered transaction set before that split occurred.
+### Methodology Note: Cancellation Rate
+- **Separate Calculation:** Cancellation rate is calculated separately in Python, rather than in SQL or Power BI, because the downstream cleaned dataset intentionally excludes cancelled transactions (which would yield a 0% rate).
+- **Dataset Scope:** The cancellation rate was calculated using the full transaction dataset prior to removing cancelled transactions.
+- **Line-Level Metric:** The analysis measures cancelled transaction lines as a percentage of total transaction lines (a line-level cancellation rate, not a percentage of entire customer orders).
+- **Result:** The overall cancellation rate was **1.83%**, with category-level rates ranging from **0.7%** (Gift Wrap & Party) to **2.7%** (Lighting & Candles).
 
 ---
 
@@ -153,80 +154,87 @@ Cancellation rate is reported from the **Python analysis**, not from SQL or Powe
 - Revenue and units by product category
 - Monthly demand patterns and seasonality
 - Average and standard deviation of monthly product demand
-- Identification of high-demand, high-variability ("high-risk") products
-- Category-level concentration of high-risk products
-- Customer and product revenue concentration
+- Identification of products with both high demand and high demand variability
+- Category-level concentration of higher-risk products
+- Customer revenue concentration
+- Product revenue concentration
+- Customer purchase frequency and activity
 
 ### Demand Risk Definition
-A product is classified as **higher risk** when it shows both:
-1. Above-average monthly demand (> 96.3 units/month)
-2. Above-average monthly demand variability (stddev > 120.7)
+A product is classified as **higher demand risk** when it meets both of the following dataset-derived benchmarks:
+1. **Average monthly demand** > 96.3 units
+2. **Monthly demand standard deviation** > 120.7 units
 
-Both thresholds are derived directly from the dataset's own distribution, not chosen arbitrarily.
+*These thresholds represent the median average monthly demand and median demand variability across products. This is an analytical measure of demand-planning difficulty and does not directly measure stockout or overstock risk, as the dataset lacks stock-on-hand or supply-chain data.*
 
 ---
 
 ## Key Findings
 
-1. **Kitchen & Baking is the largest revenue-generating category, and carries above-average cancellation risk**
-   Kitchen & Baking generated **£5.29 million (26.25% of total revenue)**, substantially ahead of the second-largest category, Home Decor & Storage (£3.38 million). It also has the second-highest cancellation rate of any category (2.6%, behind Lighting & Candles at 2.7%). Combined, this makes it the single category where inventory and order-fulfilment issues would have the largest revenue impact.
+1. **Kitchen & Baking is the largest revenue-generating category**  
+   Kitchen & Baking generated approximately **£5.29 million** (26.25% of total revenue), substantially ahead of Home Decor & Storage at **£3.38 million**. Its cancellation rate was also relatively high at **2.6%**, second only to Lighting & Candles (**2.7%**).
 
-2. **Cancellation rate varies by category, but stays in a narrow, low-single-digit band**
-   Across the full dataset, the overall cancellation rate is **1.83%**. By category it ranges from **0.7% (Gift Wrap & Party)** to **2.7% (Lighting & Candles)**. No category shows a dramatically elevated rate, so cancellations appear to be a general, low-level operational factor rather than a category-specific problem.
+2. **Cancellation rates remain within a narrow range across categories**  
+   The overall cancellation rate was **1.83%** of transaction lines. Category-level rates ranged tightly from **0.7%** (Gift Wrap & Party) to **2.7%** (Lighting & Candles).
 
-3. **Craft & Art has the highest concentration of high-risk products of any category**
-   38.0% of Craft & Art's products meet the high-risk definition (above-average demand and above-average volatility), the highest share of any category. It's followed by Bags & Totes (35.4%), Gift Wrap & Party (32.7%), and Christmas & Seasonal (27.4%). By contrast, Kitchen & Baking, despite being the largest category by revenue, has a comparatively low 19.7% of its products classed as high-risk, suggesting its revenue risk comes mainly from its sheer size and cancellation rate rather than from unpredictable individual products.
+3. **Craft & Art has the highest proportion of higher-risk products**  
+   **38.0%** of Craft & Art products meet the higher-risk definition (above-median demand and variability). This is followed by:
+   - **Bags & Totes:** 35.4%
+   - **Gift Wrap & Party:** 32.7%
+   - **Christmas & Seasonal:** 27.4%
+   - **Kitchen & Baking:** 19.7% *(despite being the largest overall revenue generator)*
 
-4. **Demand increases sharply towards the end of the year**
-   Combined revenue across both years in the dataset was highest in:
-   - **November:** £2.90 million *(combined 2010–2011, strongest month overall)*
-   - **December:** £2.61 million *(combined 2010–2011)*
-   - **October:** £2.21 million *(combined 2010–2011)*
+4. **Revenue is strongly seasonal, peaking in Q4**  
+   Across both years, the highest-revenue months were:
+   - **November:** £2.90 million
+   - **December:** £2.61 million
+   - **October:** £2.21 million  
+   This highlights a dramatic, recurring surge towards the final quarter of the year.
 
-5. **Christmas & Seasonal has the highest demand volatility of any category**
-   Measured by coefficient of variation (demand stddev ÷ average monthly demand), Christmas & Seasonal scores **1.04**, meaning the average month's demand swings by roughly its own size. Revenue-based monthly variability is also highest for this category, with a standard deviation of **£54,726** against an average monthly revenue of £49,414 (CoV ≈ 1.11), reflecting the same seasonal concentration.
+5. **Christmas & Seasonal has the highest demand volatility**  
+   Christmas & Seasonal recorded the highest category-level coefficient of variation at **1.04**, indicating substantial variation in monthly demand relative to its average demand.
 
-6. **Individual products can combine strong revenue with extreme demand variability**
-   `PAPER CRAFT, LITTLE BIRDIE` (Gift Wrap & Party) generated **£168,470** in revenue while averaging ~3,240 units/month with a demand standard deviation of ~15,872 units, a volatility ratio of 4.9, nearly five times its own average. This shows product-level risk can be far more extreme than the category-level average suggests.
+6. **Individual products can show extreme demand variability**  
+   `PAPER CRAFT, LITTLE BIRDIE` generated approximately **£168,470** in revenue while averaging **~3,240 units/month**. Its monthly demand variability was **~15,872 units**, yielding a volatility ratio of **~4.9** relative to its average monthly demand.
 
-7. **Revenue is more concentrated among customers than among products**
-   The top 10 customers account for **26.54%** of total revenue, compared with **7.83%** for the top 10 products. The business is more exposed to losing a handful of large customers than to any single product underperforming.
+7. **Revenue is more concentrated among customers than products**  
+   The **top 10 customers account for 26.54% of revenue**, compared with **7.83% for the top 10 products**, indicating greater exposure to customer loss than product-level dependence.
 
 ---
 
 ## Business Recommendations
 
-1. **Treat Kitchen & Baking as the priority category for inventory and fulfilment review**
-   It carries both the largest revenue share (26.25%) and a near-highest cancellation rate (2.6%), so any operational issue here has an outsized effect on total revenue. Recommend a focused review of what's driving cancellations specifically in this category, rather than a blanket policy across all categories.
+1. **Prioritise Kitchen & Baking for operational review**  
+   Because Kitchen & Baking accounts for 26.25% of revenue and has a 2.6% line cancellation rate, it should be the focus of fulfillment and operational reviews to address root causes of cancellations.
 
-2. **Apply differentiated demand-planning to categories with a high share of high-risk products**
-   Craft & Art (38.0%), Bags & Totes (35.4%), and Gift Wrap & Party (32.7%) have the highest proportion of individually unpredictable products, well above Kitchen & Baking's 19.7% despite its far larger revenue share. Recommend tighter forecasting and more frequent stock reviews for these three categories specifically, rather than applying uniform replenishment rules across the whole catalogue.
+2. **Use differentiated demand planning across categories**  
+   Craft & Art, Bags & Totes, and Gift Wrap & Party carry the highest proportions of higher-risk demand SKUs. Apply more frequent demand reviews to these categories rather than using uniform planning assumptions.
 
-3. **Build seasonal safety stock ahead of Q4, scaled by category**
-   The Oct–Dec revenue increase is consistent and predictable. Recommend reviewing purchasing and fulfilment capacity ahead of this period rather than reactively, with Christmas & Seasonal specifically requiring a seasonal-adjusted forecast rather than a flat monthly average, given its volatility score of 1.04.
+3. **Prepare for stronger demand during Q4**  
+   Build inventory and fulfillment capacity ahead of the October–December peak. Christmas & Seasonal requires dedicated forecasting models due to its high demand volatility.
 
-4. **Flag top-10 customer accounts for retention monitoring**
-   With over a quarter of revenue concentrated in 10 customers, losing even one materially affects total revenue. Recommend a retention-risk flag or account-health check specifically for this group, distinct from general customer management.
+4. **Monitor high-value customer accounts**  
+   With the top 10 customers driving 26.54% of total revenue, set up account health monitoring and dedicated retention workflows to protect key customer relationships.
 
-5. **Apply manual demand review to individually extreme-volatility products**
-   Products like `PAPER CRAFT, LITTLE BIRDIE`, with volatility far exceeding their category average, are poor candidates for automated reorder-point systems that assume stable demand. Recommend manual review for the small set of products meeting both high-volume and high-volatility thresholds, identified in the Page 3 risk table.
+5. **Manually review products with extreme demand variability**  
+   Isolate SKUs like `PAPER CRAFT, LITTLE BIRDIE` that exceed both high-demand and high-variability thresholds for manual demand reviews rather than relying on automated, stable-demand algorithms.
 
 ---
 
 ## Power BI Dashboard
 
-### Dashboard 1: Sales Performance
-Overview of overall sales performance: revenue, units sold, orders, customers, average order value, monthly revenue trend, and category performance.
+* **Dashboard 1: Sales Performance**  
+  Overview of overall sales performance, including revenue, units sold, orders, average order value, monthly revenue trends, and category revenue performance.
 
 ![Dashboard 1 - Sales Performance](images/dashboard_1.png)
 
-### Dashboard 2: Product & Demand Analysis
-Product- and category-level demand: monthly units, average unit prices, product counts, and year-over-year demand comparison.
+* **Dashboard 2: Product & Demand Analysis**  
+  Product and category demand analysis, including total product count, average monthly units, average units per product, average revenue per product, average unit price by category, and monthly demand across years.
 
 ![Dashboard 2 - Product & Demand Analysis](images/dashboard_2.png)
 
-### Dashboard 3: Demand Risk & Product Volatility
-Demand quality and planning risk: category-level volatility, product-level risk detail (high-volume, high-volatility products only), and customer revenue concentration.
+* **Dashboard 3: Demand Risk & Product Volatility**  
+  Demand-planning analysis covering category-level demand volatility, product-level higher-risk demand detail, and customer revenue concentration.
 
 ![Dashboard 3 - Demand Risk & Product Volatility](images/dashboard_3.png)
 
@@ -234,15 +242,17 @@ Demand quality and planning risk: category-level volatility, product-level risk 
 
 ## Limitations
 
-- Product categorisation uses keyword matching rather than a dedicated ML/NLP classifier; ~5% of revenue falls into an "Other" category by design rather than being force-categorised.
-- Customer-level demographic information is not available in the dataset.
-- The dataset represents a single UK-based retailer over a fixed 2009–2011 period; findings are not generalised beyond this dataset.
-- The analysis identifies planning risk from historical demand patterns but does not include actual stock-on-hand, lead-time, or supplier data. It cannot directly measure stockouts or overstock levels, only where the risk of mismatch is highest.
-- Cancellation rate is calculated separately in Python against the full transaction set, since the cleaned dataset used for the rest of the analysis intentionally excludes cancellations (see Methodology Note above).
+- **Rule-Based Categorisation:** Uses keyword matching rather than ML/NLP algorithms; ~6.4% of revenue remains in the `Other` category.
+- **Missing Customer IDs:** Approximately 23% of final cleaned records lack a Customer ID, limiting customer-level completeness.
+- **Demographics:** Customer demographic data is absent from the dataset.
+- **Scope & Generalisability:** Represents a single UK-based online retailer over a fixed period (Dec 2009–Dec 2011).
+- **Supply Chain Data:** Identifies demand risk from transaction history only; lacks stock-on-hand, lead time, or supplier data, so stockouts and inventory holding levels cannot be measured directly.
+- **Threshold Definition:** The higher-risk SKU classification relies on dataset-derived median thresholds rather than fixed operational parameters.
+- **Cancellation Calculation:** Cancellation rates are calculated separately in Python at the transaction-line level on the raw dataset because cancelled rows are removed from the cleaned analytics model.
 
 ---
 
 ## Author
 
-**Haroon Parvez**
+**Haroon Parvez**  
 [LinkedIn Profile](https://www.linkedin.com/in/haroon-parvez)
