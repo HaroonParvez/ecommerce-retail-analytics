@@ -9,17 +9,18 @@ The project uses Python for data cleaning and preparation, MySQL/SQL for analyti
 ## Contents
 
 - [Business Question](#business-question)
-- [Analysis Approach](#analysis-approach)
 - [Dataset](#dataset)
-- [Tools](#tools)
-- [Data Pipeline](#data-pipeline)
-- [Data Cleaning](#data-cleaning)
+- [Tools & Technologies](#tools--technologies)
+- [Analytical Pipeline](#analytical-pipeline)
+- [Repository Structure](#repository-structure)
+- [Data Cleaning & Preparation](#data-cleaning--preparation)
 - [Product Categorisation](#product-categorisation)
-- [Methodology](#methodology)
+- [SQL Analysis](#sql-analysis)
 - [Key Findings](#key-findings)
-- [Recommendations](#recommendations)
-- [Power BI Dashboards](#power-bi-dashboards)
+- [Business Recommendations](#business-recommendations)
+- [Power BI Dashboard](#power-bi-dashboard)
 - [Limitations](#limitations)
+- [Author](#author)
 
 
 ## Business Question
