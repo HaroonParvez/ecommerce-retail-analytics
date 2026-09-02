@@ -6,6 +6,22 @@ The project uses Python for data cleaning and preparation, MySQL/SQL for analyti
 
 ---
 
+## Contents
+
+- [Business Question](#business-question)
+- [Analysis Approach](#analysis-approach)
+- [Dataset](#dataset)
+- [Tools](#tools)
+- [Data Pipeline](#data-pipeline)
+- [Data Cleaning](#data-cleaning)
+- [Product Categorisation](#product-categorisation)
+- [Methodology](#methodology)
+- [Key Findings](#key-findings)
+- [Recommendations](#recommendations)
+- [Power BI Dashboards](#power-bi-dashboards)
+- [Limitations](#limitations)
+
+
 ## Business Question
 
 **Where is this business's revenue most exposed to risk, and which product categories, products, and customer segments should be prioritised to manage that risk?**
